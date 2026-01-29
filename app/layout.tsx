@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Alumni_Sans } from 'next/font/google';
 import SEO from '@/components/SEO';
 import WalletProvider from '@/components/WalletProvider';
+import { AuthProvider } from '@/components/auth/AuthProvider';
 
 const alumniSans = Alumni_Sans({ 
   subsets: ['latin'],
@@ -46,10 +47,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${alumniSans.variable} font-sans`}>
-        <WalletProvider>
-          <SEO />
-          {children}
-        </WalletProvider>
+        <AuthProvider>
+          <WalletProvider>
+            <SEO />
+            {children}
+          </WalletProvider>
+        </AuthProvider>
       </body>
     </html>
   );

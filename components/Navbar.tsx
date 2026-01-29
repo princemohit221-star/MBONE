@@ -1,14 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, X, Bone } from 'lucide-react';
+import { Menu, X, Bone, LogIn } from 'lucide-react';
 import Image from 'next/image';
 import WalletConnect from './WalletConnect';
+import AuthModal from './auth/AuthModal';
+import { useAuth } from './auth/AuthProvider';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const { user, profile, signOut } = useAuth();
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -18,8 +22,19 @@ export default function Navbar() {
     { href: '/contact', label: 'Contact' },
   ];
 
+  const handleAuthSuccess = (userData: any) => {
+    setShowAuthModal(false);
+    // Profile will be updated automatically through the AuthProvider
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setIsOpen(false);
+  };
+
   return (
-    <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md z-50 border-b border-gray-200">
+    <>
+      <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md z-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -46,7 +61,8 @@ export default function Navbar() {
                 {item.label}
               </Link>
             ))}
-            <div className="flex items-center space-x-4">
+            
+            <div className="flex items-center space-x-3">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -54,6 +70,37 @@ export default function Navbar() {
               >
                 BUY $MBONE
               </motion.button>
+              
+              {user ? (
+                <div className="flex items-center space-x-3">
+                  <Link href="/profile">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="bg-brand-primary text-white px-4 py-2 rounded-full font-medium hover:bg-opacity-90 transition-colors"
+                    >
+                      {profile?.username || 'Profile'}
+                    </motion.button>
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="text-brand-secondary hover:text-brand-accent transition-colors font-medium"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowAuthModal(true)}
+                  className="bg-brand-primary text-white px-6 py-2 rounded-full font-bold flex items-center space-x-2 hover:bg-opacity-90 transition-colors"
+                >
+                  <LogIn className="h-4 w-4" />
+                  <span>Sign In</span>
+                </motion.button>
+              )}
+              
               <WalletConnect />
             </div>
           </div>
@@ -69,6 +116,13 @@ export default function Navbar() {
           </div>
         </div>
 
+      
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onAuthSuccess={handleAuthSuccess}
+      />
+    </>
         {/* Mobile Navigation */}
         {isOpen && (
           <motion.div
@@ -88,11 +142,43 @@ export default function Navbar() {
                   {item.label}
                 </Link>
               ))}
-              <div className="pt-2">
+              
+              <div className="pt-2 space-y-3">
                 <button className="w-full bg-brand-accent text-white px-4 py-2 rounded-full font-bold">
                   BUY $MBONE
                 </button>
-                <div className="mt-2">
+                
+                {user ? (
+                  <div className="space-y-2">
+                    <Link href="/profile">
+                      <button 
+                        onClick={() => setIsOpen(false)}
+                        className="w-full bg-brand-primary text-white px-4 py-2 rounded-full font-medium"
+                      >
+                        {profile?.username || 'Profile'}
+                      </button>
+                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full text-brand-secondary hover:text-brand-accent transition-colors font-medium py-2"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setShowAuthModal(true);
+                      setIsOpen(false);
+                    }}
+                    className="w-full bg-brand-primary text-white px-4 py-2 rounded-full font-bold flex items-center justify-center space-x-2"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    <span>Sign In</span>
+                  </button>
+                )}
+                
+                <div>
                   <WalletConnect />
                 </div>
               </div>
