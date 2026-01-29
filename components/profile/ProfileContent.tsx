@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Calendar, Wallet, Edit3, Save, X, Camera } from 'lucide-react';
+import { User, Mail, Calendar, Wallet, CreditCard as Edit3, Save, X, Camera } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import Image from 'next/image';
 
